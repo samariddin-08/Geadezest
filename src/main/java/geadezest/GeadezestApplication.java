@@ -1,4 +1,4 @@
-package name.geadezest;
+package geadezest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
