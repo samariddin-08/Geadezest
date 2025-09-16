@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,4 +47,32 @@ public class UserController {
         ApiResponse profile = userService.getProfile(user);
         return ResponseEntity.status(profile.getStatus()).body(profile);
     }
+
+    @GetMapping("/users/search")
+    @Operation(summary = "Userlar kurish")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse> searchUsers(@RequestParam String name) {
+        ApiResponse apiResponse = userService.searchUser(name);
+        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    }
+
+    @GetMapping("/usersGet")
+    @Operation(summary = "qidirish ism buyicha")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse> usersGet(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        ApiResponse response = userService.getAllUsers(page, size);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @GetMapping("getOne/{id}")
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer id) {
+        ApiResponse response = userService.getUserById(id);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+
+
 }

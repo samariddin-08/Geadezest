@@ -5,10 +5,15 @@ import geadezest.payload.ApiResponse;
 import geadezest.payload.UserDTO;
 import geadezest.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +60,7 @@ public class UserService {
         contact.setDistrict(district);
         contact.setStreet(street);
         contactRepository.save(contact);
-    user.setContact(contact);
+        user.setContact(contact);
 
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -106,5 +111,79 @@ public class UserService {
         }
         return new ApiResponse("Sizing malumotlaringiz", HttpStatus.OK, true, userDTO);
     }
+
+    public ApiResponse getAllUsers(int page, int size) {
+
+
+            Pageable pageable = PageRequest.of(page, size);
+            Page<User> userPage = userRepository.findAll(pageable);
+
+            if (userPage.isEmpty()) {
+                return new ApiResponse("Users not found", HttpStatus.NOT_FOUND, false, null);
+            }
+
+       List<UserDTO> dtoList = new ArrayList<>();
+       for (User user : userPage.getContent()) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setFirstName(user.getFirstName());
+                userDTO.setLastName(user.getLastName());
+                userDTO.setPhone(user.getPhone());
+                dtoList.add(userDTO);
+       }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("users", dtoList);
+            response.put("currentPage", userPage.getNumber());
+            response.put("totalItems", userPage.getTotalElements());
+            response.put("totalPages", userPage.getTotalPages());
+
+            return new ApiResponse("Users found", HttpStatus.OK, true, response);
+    }
+
+    public ApiResponse getUserById(Integer id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isEmpty()) {
+            return new ApiResponse("User not found", HttpStatus.NOT_FOUND, false, null);
+        }
+
+        User user = optionalUser.get();
+        UserDTO userDTO = new UserDTO();
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
+        userDTO.setPhone(user.getPhone());
+        userDTO.setRegion(user.getContact().getRegion().getName());
+        userDTO.setDistrict(user.getContact().getDistrict().getName());
+        userDTO.setStreet(user.getContact().getStreet().getName());
+        userDTO.setCreatedDate(user.getCreatedDate());
+
+        return new ApiResponse("User details found", HttpStatus.OK, true, userDTO);
+    }
+
+
+    public ApiResponse searchUser(String firstName) {
+        List<User> byFirst = userRepository.findByFirstNameContainingIgnoreCase(firstName);
+
+        if (byFirst.isEmpty()) {
+            return new ApiResponse("User not found", HttpStatus.NOT_FOUND, false, null);
+        }
+
+        List<UserDTO> dtoList = new ArrayList<>();
+        for (User user : byFirst) {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setFirstName(user.getFirstName());
+            userDTO.setLastName(user.getLastName());
+
+            dtoList.add(userDTO);
+        }
+        return new ApiResponse("Found users", HttpStatus.OK, true, dtoList);
+
+
+
+    }
+
+
+
+
 
 }
