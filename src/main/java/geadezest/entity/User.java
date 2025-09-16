@@ -45,6 +45,15 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role  role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private District district;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Region region;
+
+    private LocalDate createdDate = LocalDate.now();
+
+
 
     private LocalDate loginDate;
 

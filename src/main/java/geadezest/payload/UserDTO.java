@@ -37,6 +37,10 @@ public class UserDTO {
 
     private String street;
 
+
+    private LocalDate createdDate;
+
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
