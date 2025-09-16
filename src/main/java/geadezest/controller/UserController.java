@@ -48,7 +48,7 @@ public class UserController {
         return ResponseEntity.status(profile.getStatus()).body(profile);
     }
 
-    @GetMapping("/users/search")
+    @GetMapping("/search")
     @Operation(summary = "Userlar kurish")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> searchUsers(@RequestParam String name) {
