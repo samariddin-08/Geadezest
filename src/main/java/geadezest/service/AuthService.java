@@ -34,7 +34,6 @@ public class AuthService {
             return new ApiResponse("Ushbu email allaqachon mavjud",
                     HttpStatus.BAD_REQUEST, false, null);
         }
-
         User user = new User();
             user.setFirstName(register.getFirstName());
             user.setLastName(register.getLastName());

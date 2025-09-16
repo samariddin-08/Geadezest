@@ -17,7 +17,7 @@ public class TestDTO {
 
     private String question;
 
-    private String category;
+    private Integer categoryId;
 
     private List<OptionDTO> options;
 

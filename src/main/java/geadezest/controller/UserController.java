@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import geadezest.entity.User;
+import geadezest.entity.enums.UserResults;
 import geadezest.payload.ApiResponse;
 import geadezest.payload.UserDTO;
 import geadezest.service.UserService;
@@ -24,17 +25,24 @@ public class UserController {
 
     private final UserService userService;
 
+
+    @PostMapping("/set/photo")
+    public ResponseEntity<ApiResponse> setPhoto( @AuthenticationPrincipal User user,
+                                                 @RequestParam MultipartFile file) {
+        ApiResponse apiResponse = userService.setPhoto(user, file);
+        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    }
     @PostMapping(value = "/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> edit_profile(@AuthenticationPrincipal User user,
-                                                    @RequestPart("userDTO") String userDTOJson,
-                                                    @RequestPart("file") MultipartFile file) throws JsonProcessingException {
+                                                    @RequestBody String userDTOJson)
+            throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         UserDTO userDTO = mapper.readValue(userDTOJson, UserDTO.class);
 
-        ApiResponse apiResponse = userService.editProfile(file, user, userDTO);
+        ApiResponse apiResponse = userService.editProfile( user, userDTO);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 
@@ -45,27 +53,32 @@ public class UserController {
         return ResponseEntity.status(profile.getStatus()).body(profile);
     }
 
-    @GetMapping("/search")
-    @Operation(summary = "Userlar kurish")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse> searchUsers(@RequestParam String name) {
-        ApiResponse apiResponse = userService.searchUser(name);
-        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
-    }
 
     @GetMapping("/usersGet")
     @Operation(summary = "qidirish ism buyicha")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> usersGet(
+            @RequestParam (required = false) String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        ApiResponse response = userService.getAllUsers(page, size);
-        return new ResponseEntity<>(response, response.getStatus());
+        ApiResponse response = userService.getAllUsers(name,page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @GetMapping("getOne/{id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer id) {
         ApiResponse response = userService.getUserById(id);
-        return new ResponseEntity<>(response, response.getStatus());
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    @PostMapping("/results")
+    public ResponseEntity<ApiResponse> results(
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false)UserResults results,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") int page
+            ) {
+        ApiResponse userResults = userService.getUserResults(fullName, categoryName, results, page, size);
+        return ResponseEntity.status(userResults.getStatus()).body(userResults);
     }
 }

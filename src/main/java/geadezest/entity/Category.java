@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -28,9 +31,9 @@ public class Category {
 
     private Integer moreQuestionsCount;
 
-    private Integer durationTime;
+    private LocalTime durationTime;
 
-    private Integer nextTestTimeDuration;
+    private LocalDate nextTestTimeDuration;
 
     @CreatedBy
     private String createdBy;

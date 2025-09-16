@@ -1,23 +1,17 @@
 package geadezest.service;
-
 import geadezest.entity.*;
-import geadezest.payload.ApiResponse;
-import geadezest.payload.UserDTO;
+import geadezest.entity.enums.UserResults;
+import geadezest.payload.*;
 import geadezest.repository.*;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-
 import java.util.*;
-
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +24,28 @@ public class UserService {
     private final RegionRepository regionRepository;
     private final DistrictRepository districtRepository;
     private final StreetRepository streetRepository;
+    private final ResultPanelRepository resultPanelRepository;
 
-    public ApiResponse editProfile(MultipartFile file, User user, UserDTO userDTO) {
+
+    public ApiResponse setPhoto(User user, MultipartFile file) {
+        try {
+            if (file != null && !file.isEmpty()) {
+                Photo photo = new Photo();
+                photo.setName(file.getOriginalFilename());
+                photo.setType(file.getContentType());
+                photo.setData(ImageUtils.compressImage(file.getBytes()));
+                photoRepository.save(photo);
+                user.setPhotoId(photo.getId());
+                userRepository.save(user);
+                return new ApiResponse("Saqlandi",HttpStatus.OK,true,null);
+            }
+        } catch (Exception e) {
+            return new ApiResponse("Rasm yuklashda muammo yuzaga keldi",
+                    HttpStatus.BAD_REQUEST,false,null);
+        }
+        return null;
+    }
+    public ApiResponse editProfile( User user, UserDTO userDTO) {
 
         boolean b = userRepository.existsByEmailAndIdNot(userDTO.getEmail(), user.getId());
         if (b) {
@@ -79,20 +93,7 @@ public class UserService {
         user.setPhone(userDTO.getPhone());
         user.setBirthDate(userDTO.getBirthDate());
 
-        try {
-            if (file != null && !file.isEmpty()) {
-                Photo photo = new Photo();
-                photo.setName(file.getOriginalFilename());
-                photo.setType(file.getContentType());
-                photo.setData(ImageUtils.compressImage(file.getBytes()));
-                photoRepository.save(photo);
-                user.setPhotoId(photo.getId());
 
-            }
-        } catch (Exception e) {
-            return new ApiResponse("Rasm yuklashda muammo yuzaga keldi",
-                    HttpStatus.BAD_REQUEST,false,null);
-        }
         userRepository.save(user);
         return new ApiResponse("Muvaffaqiyatli tahrirlandi", HttpStatus.OK, true, null);
     }
@@ -121,22 +122,20 @@ public class UserService {
     }
 
 
-    public ApiResponse getAllUsers(int page, int size) {
-
-
+    public ApiResponse getAllUsers(String name,int page, int size) {
             Pageable pageable = PageRequest.of(page, size);
-            Page<User> userPage = userRepository.findAll(pageable);
-
+            Page<User> userPage = userRepository.all(name,pageable);
             if (userPage.isEmpty()) {
                 return new ApiResponse("Users not found", HttpStatus.NOT_FOUND, false, null);
             }
 
-       List<UserDTO> dtoList = new ArrayList<>();
+       List<UsersPanel> dtoList = new ArrayList<>();
        for (User user : userPage.getContent()) {
-                UserDTO userDTO = new UserDTO();
+           UsersPanel userDTO = new UsersPanel();
                 userDTO.setFirstName(user.getFirstName());
                 userDTO.setLastName(user.getLastName());
-                userDTO.setPhone(user.getPhone());
+                userDTO.setPhoneNumber(user.getPhone());
+                userDTO.setLoginDate(user.getCreatedDate());
                 dtoList.add(userDTO);
        }
 
@@ -155,44 +154,35 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             return new ApiResponse("User not found", HttpStatus.NOT_FOUND, false, null);
         }
-
         User user = optionalUser.get();
-        UserDTO userDTO = new UserDTO();
-        userDTO.setFirstName(user.getFirstName());
-        userDTO.setLastName(user.getLastName());
-        userDTO.setPhone(user.getPhone());
+        User_panel_for_admin userDTO = new User_panel_for_admin();
+        userDTO.setFullName(user.getFirstName()+" "+user.getLastName());
+        userDTO.setPhoneNumber(user.getPhone());
         userDTO.setRegion(user.getContact().getRegion().getName());
         userDTO.setDistrict(user.getContact().getDistrict().getName());
         userDTO.setStreet(user.getContact().getStreet().getName());
-        userDTO.setCreatedDate(user.getCreatedDate());
-
         return new ApiResponse("User details found", HttpStatus.OK, true, userDTO);
     }
 
+    public ApiResponse getUserResults(String fullName, String categoryName, UserResults status,int page, int size) {
 
-    public ApiResponse searchUser(String firstName) {
-        List<User> byFirst = userRepository.findByFirstNameContainingIgnoreCase(firstName);
-
-        if (byFirst.isEmpty()) {
-            return new ApiResponse("User not found", HttpStatus.NOT_FOUND, false, null);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ResultPanel> search = resultPanelRepository.search(fullName, categoryName, status, pageable);
+        if (search.isEmpty()) {
+            return new ApiResponse("Users not found", HttpStatus.NOT_FOUND, false, null);
         }
-
-        List<UserDTO> dtoList = new ArrayList<>();
-        for (User user : byFirst) {
-            UserDTO userDTO = new UserDTO();
-            userDTO.setFirstName(user.getFirstName());
-            userDTO.setLastName(user.getLastName());
-
+        List<UserResultsforAdmin> dtoList = new ArrayList<>();
+        for (ResultPanel result : search.getContent()) {
+            UserResultsforAdmin userDTO = new UserResultsforAdmin();
+            userDTO.setId(result.getId());
+            userDTO.setFullName(result.getUser().getFirstName()+" "+result.getUser().getLastName());
+            userDTO.setCategoryName(result.getCategoryName());
+            userDTO.setPhoneNumber(result.getUser().getPhone());
+            userDTO.setNextTestDuration(result.getNextTestDuration());
+            userDTO.setUserResults(result.getUserResults());
             dtoList.add(userDTO);
         }
-        return new ApiResponse("Found users", HttpStatus.OK, true, dtoList);
-
-
+        return new ApiResponse("Users found", HttpStatus.OK, true, dtoList);
 
     }
-
-
-
-
-
 }

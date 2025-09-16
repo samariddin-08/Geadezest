@@ -53,8 +53,6 @@ public class User implements UserDetails {
 
     private LocalDate createdDate = LocalDate.now();
 
-
-
     private LocalDate loginDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
