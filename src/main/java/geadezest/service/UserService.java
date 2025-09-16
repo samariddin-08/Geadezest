@@ -5,15 +5,19 @@ import geadezest.payload.ApiResponse;
 import geadezest.payload.UserDTO;
 import geadezest.repository.*;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +64,11 @@ public class UserService {
         contact.setDistrict(district);
         contact.setStreet(street);
         contactRepository.save(contact);
+
         user.setContact(contact);
+
+    user.setContact(contact);
+
 
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -111,6 +119,7 @@ public class UserService {
         }
         return new ApiResponse("Sizing malumotlaringiz", HttpStatus.OK, true, userDTO);
     }
+
 
     public ApiResponse getAllUsers(int page, int size) {
 

@@ -45,7 +45,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role  role;
 
-    //men qushdim
     @ManyToOne(fetch = FetchType.LAZY)
     private District district;
 
@@ -53,6 +52,7 @@ public class User implements UserDetails {
     private Region region;
 
     private LocalDate createdDate = LocalDate.now();
+
 
 
     private LocalDate loginDate;

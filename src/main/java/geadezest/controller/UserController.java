@@ -1,6 +1,5 @@
 package geadezest.controller;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -35,11 +34,9 @@ public class UserController {
 
         UserDTO userDTO = mapper.readValue(userDTOJson, UserDTO.class);
 
-
         ApiResponse apiResponse = userService.editProfile(file, user, userDTO);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
-
 
     @GetMapping("/profile")
     @Operation(summary = "User malumotlarin kurish uchun api")
@@ -62,7 +59,6 @@ public class UserController {
     public ResponseEntity<ApiResponse> usersGet(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
         ApiResponse response = userService.getAllUsers(page, size);
         return new ResponseEntity<>(response, response.getStatus());
     }
@@ -72,7 +68,4 @@ public class UserController {
         ApiResponse response = userService.getUserById(id);
         return new ResponseEntity<>(response, response.getStatus());
     }
-
-
-
 }
