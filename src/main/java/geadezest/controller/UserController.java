@@ -81,4 +81,15 @@ public class UserController {
         ApiResponse userResults = userService.getUserResults(fullName, categoryName, results, page, size);
         return ResponseEntity.status(userResults.getStatus()).body(userResults);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse> searchUsers(
+            @RequestParam(required = false) String district,
+            @RequestParam(required = false) String region,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        ApiResponse response = userService.get(district, region, page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }
