@@ -185,4 +185,32 @@ public class UserService {
         return new ApiResponse("Users found", HttpStatus.OK, true, dtoList);
 
     }
+
+    public ApiResponse get(String district, String region, int page , int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> search = userRepository.search(district, region, pageable);
+        if (search.isEmpty()) {
+            return new ApiResponse("Users not found", HttpStatus.NOT_FOUND, false, null);
+        }
+
+        List<UsersPanel> dtoList = new ArrayList<>();
+        for (User user : search.getContent()) {
+            UsersPanel userDTO = new UsersPanel();
+            userDTO.setFirstName(user.getFirstName());
+            userDTO.setLastName(user.getLastName());
+            userDTO.setPhoneNumber(user.getPhone());
+            userDTO.setLoginDate(user.getCreatedDate());
+            dtoList.add(userDTO);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", dtoList);
+        response.put("currentPage", search.getNumber());
+        response.put("totalItems", search.getTotalElements());
+        response.put("totalPages", search.getTotalPages());
+
+        return new ApiResponse("Users found", HttpStatus.OK, true, response);
+
+
+    }
 }

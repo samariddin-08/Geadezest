@@ -25,4 +25,15 @@ where (:name is null or :name = '' or lower(u.firstName)like lower(concat('%', :
 """)
     Page<User> all(@Param("name")String name,
             Pageable pageable);
+
+    @Query("""
+SELECT u FROM users u
+    WHERE (:district IS NULL OR :district = '' OR LOWER(u.district.name) = LOWER(:district))
+    AND (:region IS NULL OR :region = '' OR LOWER(u.region.name) = LOWER(:region))
+    """)
+    Page<User> search(@Param("district")String district,
+                      @Param("region")String region,
+                      Pageable pageable
+    );
+
 }
