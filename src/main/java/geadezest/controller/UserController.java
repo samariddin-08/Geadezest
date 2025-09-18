@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import geadezest.entity.User;
-import geadezest.entity.enums.UserResults;
 import geadezest.payload.ApiResponse;
 import geadezest.payload.UserDTO;
 import geadezest.service.UserService;
@@ -65,23 +64,11 @@ public class UserController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("getOne/{id}")
+    @GetMapping("/getOne/{id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer id) {
         ApiResponse response = userService.getUserById(id);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
-    @PostMapping("/results")
-    public ResponseEntity<ApiResponse> results(
-            @RequestParam(required = false) String fullName,
-            @RequestParam(required = false) String categoryName,
-            @RequestParam(required = false)UserResults results,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "0") int page
-            ) {
-        ApiResponse userResults = userService.getUserResults(fullName, categoryName, results, page, size);
-        return ResponseEntity.status(userResults.getStatus()).body(userResults);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchUsers(
             @RequestParam(required = false) String district,
@@ -91,5 +78,11 @@ public class UserController {
     ) {
         ApiResponse response = userService.get(district, region, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/view/results")
+    public ResponseEntity<ApiResponse> viewResults(@AuthenticationPrincipal User user) {
+        ApiResponse apiResponse = userService.viewResults(user);
+        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
 }

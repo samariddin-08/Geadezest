@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -53,10 +55,14 @@ public class WorkingTest {
                     optionTest.setAnswer(option.getText());
                     optionTests.add(optionTest);
                 }
+
                 testWorking.setOption(optionTests);
                 testWorkings.add(testWorking);
             }
         }
+        TestResult testResult = new TestResult();
+        testResult.setStartTime(LocalTime.now());
+        testResultRepository.save(testResult);
         return new ApiResponse("Testlar", HttpStatus.OK, true,
                 testWorkings);
     }
@@ -152,7 +158,6 @@ public class WorkingTest {
     }
 
 
-
     public ApiResponse finishTest(Integer categoryId, User user) {
 
         int totalQuestionsInCategory = testRepository.countByCategory_Id(categoryId);
@@ -185,7 +190,6 @@ public class WorkingTest {
                 .distinct()
                 .count();
 
-
         double score = (double) correctAnswers / totalQuestionsInCategory * 100;
 
         TestResult result = new TestResult();
@@ -193,8 +197,9 @@ public class WorkingTest {
         result.setCategoryId(categoryId);
         result.setTotalQuestion(totalQuestionsInCategory);
         result.setCorrectAnswers(correctAnswers);
+        result.setEndTime(LocalTime.now());
         result.setScore(score);
-        result.setFinishedAt(LocalDateTime.now());
+        result.setFinishedAt(LocalDate.now());
          testResultRepository.save(result);
          return new ApiResponse("results",HttpStatus.OK,true,result);
     }

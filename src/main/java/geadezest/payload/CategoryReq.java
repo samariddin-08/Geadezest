@@ -4,6 +4,9 @@ package geadezest.payload;
 import jakarta.persistence.Entity;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,9 +18,9 @@ public class CategoryReq {
 
     private String description;
 
-    private Integer durationTime;
+    private LocalTime durationTime;
 
-    private Integer nextTestWorkTime;
+    private LocalDate nextTestWorkTime;
 
 
 }

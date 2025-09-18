@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -29,5 +31,7 @@ public class TestResult {
 
     private double score;
 
-    private LocalDateTime finishedAt;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private LocalDate finishedAt;
 }
