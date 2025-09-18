@@ -3,9 +3,7 @@ package geadezest.controller;
 import geadezest.entity.User;
 
 import geadezest.payload.ApiResponse;
-import geadezest.service.TestService;
 import geadezest.service.WorkingTest;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -25,6 +25,8 @@ public class UserService {
     private final DistrictRepository districtRepository;
     private final StreetRepository streetRepository;
     private final ResultPanelRepository resultPanelRepository;
+    private final TestResultRepository testResultRepository;
+    private final CategoryRepository categoryRepository;
 
 
     public ApiResponse setPhoto(User user, MultipartFile file) {
@@ -164,28 +166,27 @@ public class UserService {
         return new ApiResponse("User details found", HttpStatus.OK, true, userDTO);
     }
 
-    public ApiResponse getUserResults(String fullName, String categoryName, UserResults status,int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ResultPanel> search = resultPanelRepository.search(fullName, categoryName, status, pageable);
-        if (search.isEmpty()) {
-            return new ApiResponse("Users not found", HttpStatus.NOT_FOUND, false, null);
-        }
-        List<UserResultsforAdmin> dtoList = new ArrayList<>();
-        for (ResultPanel result : search.getContent()) {
-            UserResultsforAdmin userDTO = new UserResultsforAdmin();
-            userDTO.setId(result.getId());
-            userDTO.setFullName(result.getUser().getFirstName()+" "+result.getUser().getLastName());
-            userDTO.setCategoryName(result.getCategoryName());
-            userDTO.setPhoneNumber(result.getUser().getPhone());
-            userDTO.setNextTestDuration(result.getNextTestDuration());
-            userDTO.setUserResults(result.getUserResults());
-            dtoList.add(userDTO);
-        }
-        return new ApiResponse("Users found", HttpStatus.OK, true, dtoList);
+    public ApiResponse viewResults(User user){
 
+        List<TestResult> byUser = testResultRepository.findByUser(user);
+        if (byUser.isEmpty()) {
+            return new ApiResponse("Results not found", HttpStatus.NOT_FOUND, false, null);
+        }
+
+        List<Users_result> dtoList = new ArrayList<>();
+        for (TestResult testResult : byUser) {
+            Users_result usersResult = new Users_result();
+            usersResult.setAllQuestions(testResult.getTotalQuestion());
+            usersResult.setCorrectAnswers(testResult.getCorrectAnswers());
+            usersResult.setTestDate(testResult.getFinishedAt());
+            usersResult.setCategoryName(categoryRepository.findById(testResult.getCategoryId()).get().getName());
+            usersResult.setStartTime(testResult.getStartTime());
+            usersResult.setEndTime(testResult.getEndTime());
+            dtoList.add(usersResult);
+        }
+        return new ApiResponse("Results ", HttpStatus.OK, true, dtoList);
     }
-
     public ApiResponse get(String district, String region, int page , int size){
         Pageable pageable = PageRequest.of(page, size);
         Page<User> search = userRepository.search(district, region, pageable);

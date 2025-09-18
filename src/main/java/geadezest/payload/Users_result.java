@@ -6,6 +6,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,17 +17,16 @@ import lombok.*;
 
 public class Users_result {
 
-    private String fullName;
+    private String  categoryName;
+    private Integer correctAnswers;
 
-    private String category;
+    private Integer allQuestions;
 
-    private String phoneNumber;
+    private LocalTime startTime;
 
-    private String next_test_duration;
+    private LocalTime endTime;
 
-    @Enumerated(EnumType.STRING)
-    private Result_status status;
+    private LocalDate testDate;
 
-    private boolean enabled;
 
 }
