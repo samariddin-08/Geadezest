@@ -1,6 +1,7 @@
 package geadezest.repository;
 
 import geadezest.entity.User;
+import geadezest.entity.enums.Role;
 import jakarta.validation.constraints.Email;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +29,13 @@ where (:name is null or :name = '' or lower(u.firstName)like lower(concat('%', :
 
     @Query("""
 SELECT u FROM users u
-    WHERE (:district IS NULL OR :district = '' OR LOWER(u.district.name) = LOWER(:district))
-    AND (:region IS NULL OR :region = '' OR LOWER(u.region.name) = LOWER(:region))
+    WHERE (:district IS NULL OR :district = '' OR LOWER(u.contact.district.name) = LOWER(concat('%', :district, '%')))
+    AND (:region IS NULL OR :region = '' OR LOWER(u.contact.region.name) = LOWER(concat('%', :region, '%')))
     """)
     Page<User> search(@Param("district")String district,
                       @Param("region")String region,
                       Pageable pageable
     );
 
+    long countByRole(Role role);
 }

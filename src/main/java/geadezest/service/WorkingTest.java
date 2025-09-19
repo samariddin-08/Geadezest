@@ -1,6 +1,7 @@
 package geadezest.service;
 import geadezest.entity.*;
 import geadezest.entity.enums.Question_type;
+import geadezest.entity.enums.Status;
 import geadezest.entity.enums.UserResults;
 import geadezest.payload.*;
 import geadezest.repository.*;
@@ -24,7 +25,27 @@ public class WorkingTest {
     private final CategoryRepository  categoryRepository;
     private final ResultPanelRepository resultPanelRepository;
 
-    public ApiResponse test(Integer categoryId) {
+    public ApiResponse categories() {
+        List<Category> allByStatus = categoryRepository.findAllByStatus(Status.ACTIVE);
+        if (allByStatus.isEmpty()) {
+            return new ApiResponse("Categoruyalar mavjud emas",HttpStatus.NOT_FOUND,false,null);
+        }
+        List<CategoryForUser> categories = new ArrayList<>();
+        for (Category category : allByStatus) {
+            CategoryForUser categoryForUser = new CategoryForUser();
+            categoryForUser.setCategoryId(category.getId());
+            categoryForUser.setCategoryName(category.getName());
+            categoryForUser.setTestTime(category.getDurationTime());
+            categoryForUser.setNextTestTimeDuration(category.getNextTestTimeDuration());
+            categories.add(categoryForUser);
+        }
+        return new ApiResponse("mavjud yunalishlar",HttpStatus.FOUND,true,categories);
+    }
+
+    public ApiResponse test(User user,Integer categoryId) {
+        if (user.getBirthDate()==null||user.getContact()==null) {
+            return new ApiResponse("Boshlashdan oldin malumotlarni tuldiring",HttpStatus.BAD_REQUEST,false,null);
+        }
         List<Test> allByCategoryId = testRepository.findAllByCategory_Id(categoryId);
         if (allByCategoryId.isEmpty()) {
             return new ApiResponse(
@@ -34,9 +55,7 @@ public class WorkingTest {
                     null
             );
         }
-
         List<TestWorking> testWorkings = new ArrayList<>();
-
 
         for (Test test : allByCategoryId) {
             if (test.getQuestion_type().equals(Question_type.HISOBLANGAN_NATIJA)){
@@ -61,6 +80,7 @@ public class WorkingTest {
             }
         }
         TestResult testResult = new TestResult();
+        testResult.setUser(user);
         testResult.setStartTime(LocalTime.now());
         testResultRepository.save(testResult);
         return new ApiResponse("Testlar", HttpStatus.OK, true,
@@ -192,7 +212,8 @@ public class WorkingTest {
 
         double score = (double) correctAnswers / totalQuestionsInCategory * 100;
 
-        TestResult result = new TestResult();
+        Optional<TestResult> byUser = testResultRepository.findByUser(user);
+        TestResult result = byUser.get();
         result.setUser(user);
         result.setCategoryId(categoryId);
         result.setTotalQuestion(totalQuestionsInCategory);
@@ -201,8 +222,18 @@ public class WorkingTest {
         result.setScore(score);
         result.setFinishedAt(LocalDate.now());
          testResultRepository.save(result);
-         return new ApiResponse("results",HttpStatus.OK,true,result);
+
+         TestEndResults testEndResults = new TestEndResults();
+         testEndResults.setFirstName(user.getFirstName());
+         testEndResults.setLastName(user.getLastName());
+         testEndResults.setStartTime(result.getStartTime());
+         testEndResults.setEndTime(LocalTime.now());
+         testEndResults.setEndDate(LocalDate.now());
+
+         return new ApiResponse("results",HttpStatus.OK,true,testEndResults);
     }
+
+
 
 }
 

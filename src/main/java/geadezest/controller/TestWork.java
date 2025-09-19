@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -18,9 +17,18 @@ import java.util.List;
 public class TestWork {
     private final WorkingTest workingTest;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse>getAllTests(Integer categoryId) {
-        ApiResponse test = workingTest.test(categoryId);
+
+    @GetMapping("/view")
+    public ResponseEntity<ApiResponse> testWork(){
+        ApiResponse categories = workingTest.categories();
+        return ResponseEntity.status(categories.getStatus()).body(categories);
+    }
+
+    @GetMapping("/start")
+    public ResponseEntity<ApiResponse>getAllTests(
+            @AuthenticationPrincipal User user,
+            @RequestParam Integer categoryId) {
+        ApiResponse test = workingTest.test(user,categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(test);
     }
 
