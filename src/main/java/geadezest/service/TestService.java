@@ -1,6 +1,7 @@
 package geadezest.service;
 import geadezest.entity.*;
 import geadezest.entity.enums.Question_type;
+import geadezest.entity.enums.Role;
 import geadezest.entity.enums.Test_difficulty;
 import geadezest.payload.ApiResponse;
 import geadezest.payload.OptionDTO;
@@ -45,11 +46,10 @@ public class TestService {
         return new ApiResponse("Test topilmadi",HttpStatus.NOT_FOUND,false,null);
     }
 
-    public ApiResponse createsTest( TestDTO dto, Question_type type, Test_difficulty difficulty) {
-//        if (user.getRole().equals(Role.ROLE_USER)){
-//            return new ApiResponse("kirish huquqi yuq",HttpStatus.BAD_REQUEST,false,null);
-//        }
-//        Optional<Category> byNameIgnoreCase = categoryRepository.findByNameIgnoreCase(dto.getCategory());
+    public ApiResponse createsTest( User user,TestDTO dto, Question_type type, Test_difficulty difficulty) {
+        if (user.getRole().equals(Role.ROLE_USER)){
+            return new ApiResponse("kirish huquqi yuq",HttpStatus.BAD_REQUEST,false,null);
+        }
         Optional<Category> byId = categoryRepository.findById(dto.getCategoryId());
         if (!byId.isPresent()) {
             return new ApiResponse("Category not found",HttpStatus.NOT_FOUND,false,null);
@@ -60,8 +60,6 @@ public class TestService {
         test.setCategory(category);
         test.setQuestion_type(type);
         test.setDifficulty(difficulty);
-
-
 
         switch (type) {
             case BIR_TUGRI_JAVOBLI -> {
@@ -130,7 +128,7 @@ public class TestService {
 
 
         testRepository.save(test);
-        return new ApiResponse("Test created", HttpStatus.OK, true, null);
+        return new ApiResponse("Test created", HttpStatus.OK, true, "id -> "+test.getId());
     }
 
 

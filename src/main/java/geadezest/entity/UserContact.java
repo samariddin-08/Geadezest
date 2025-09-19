@@ -23,6 +23,5 @@ public class UserContact {
     @ManyToOne
     private District district;
 
-    @ManyToOne
-    private Street street;
+    private String street;
 }

@@ -6,6 +6,7 @@ import geadezest.payload.ApiResponse;
 import geadezest.payload.TestDTO;
 import geadezest.service.TestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +28,11 @@ public class TestController {
             @RequestParam Test_difficulty difficulty,
             @RequestBody TestDTO dtoJson
     )  {
-        ApiResponse test = testService.createsTest(dtoJson, type, difficulty);
+        ApiResponse test = testService.createsTest(user,dtoJson, type, difficulty);
         return ResponseEntity.status(test.getStatus()).body(test);
     }
 
-    @PostMapping("/set/photo")
+    @PostMapping(value = "/set/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> setPhoto(
             @RequestParam MultipartFile file,
             @RequestParam Integer test_id

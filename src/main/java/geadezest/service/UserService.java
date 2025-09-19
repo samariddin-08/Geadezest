@@ -1,6 +1,5 @@
 package geadezest.service;
 import geadezest.entity.*;
-import geadezest.entity.enums.UserResults;
 import geadezest.payload.*;
 import geadezest.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class UserService {
     private final UserContactRepository contactRepository;
     private final RegionRepository regionRepository;
     private final DistrictRepository districtRepository;
-    private final StreetRepository streetRepository;
     private final ResultPanelRepository resultPanelRepository;
     private final TestResultRepository testResultRepository;
     private final CategoryRepository categoryRepository;
@@ -70,15 +68,9 @@ public class UserService {
         }
         districtRepository.save(district);
         district.setName(userDTO.getDistrict());
-        Street street = contact.getStreet();
-        if (street == null) {
-            street = new Street();
-        }
-        streetRepository.save(street);
-        street.setName(userDTO.getStreet());
         contact.setRegion(region);
         contact.setDistrict(district);
-        contact.setStreet(street);
+        contact.setStreet(userDTO.getStreet());
         contactRepository.save(contact);
 
         user.setContact(contact);
@@ -103,6 +95,7 @@ public class UserService {
     public ApiResponse getProfile(User user) {
         UserDTO  userDTO = new UserDTO();
         userDTO.setId(user.getId());
+        userDTO.setPhotoId(user.getPhotoId());
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());
         userDTO.setEmail(user.getEmail());
@@ -114,7 +107,7 @@ public class UserService {
         if (user.getContact() != null) {
             userDTO.setRegion(user.getContact().getRegion().getName());
             userDTO.setDistrict(user.getContact().getDistrict().getName());
-            userDTO.setStreet(user.getContact().getStreet().getName());
+            userDTO.setStreet(user.getContact().getStreet());
         }else {
             userDTO.setRegion(null);
             userDTO.setDistrict(null);
@@ -162,14 +155,14 @@ public class UserService {
         userDTO.setPhoneNumber(user.getPhone());
         userDTO.setRegion(user.getContact().getRegion().getName());
         userDTO.setDistrict(user.getContact().getDistrict().getName());
-        userDTO.setStreet(user.getContact().getStreet().getName());
+        userDTO.setStreet(user.getContact().getStreet());
         return new ApiResponse("User details found", HttpStatus.OK, true, userDTO);
     }
 
 
     public ApiResponse viewResults(User user){
 
-        List<TestResult> byUser = testResultRepository.findByUser(user);
+        List<TestResult> byUser = testResultRepository.findAllByUser(user);
         if (byUser.isEmpty()) {
             return new ApiResponse("Results not found", HttpStatus.NOT_FOUND, false, null);
         }
