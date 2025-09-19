@@ -1,6 +1,7 @@
 package geadezest.repository;
 
 import geadezest.entity.Category;
+import geadezest.entity.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
 
     @Override
     Page<Category> findAll(Pageable pageable);
+
+    List<Category> findAllByStatus(Status status);
 }

@@ -25,22 +25,20 @@ public class UserController {
     private final UserService userService;
 
 
-    @PostMapping("/set/photo")
+    @PostMapping(value = "/set/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> setPhoto( @AuthenticationPrincipal User user,
                                                  @RequestParam MultipartFile file) {
         ApiResponse apiResponse = userService.setPhoto(user, file);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
-    @PostMapping(value = "/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse> edit_profile(@AuthenticationPrincipal User user,
-                                                    @RequestBody String userDTOJson)
-            throws JsonProcessingException {
+
+    @PostMapping(value = "/edit")
+    public ResponseEntity<ApiResponse> edit_profile(
+            @AuthenticationPrincipal User user,
+            @RequestBody UserDTO userDTO) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        UserDTO userDTO = mapper.readValue(userDTOJson, UserDTO.class);
-
         ApiResponse apiResponse = userService.editProfile( user, userDTO);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }

@@ -17,6 +17,12 @@ public class ControlPanelController {
     private final ControlPanelService controlPanelService;
 
 
+    @GetMapping("/panel")
+    public ResponseEntity<ApiResponse> panel(@AuthenticationPrincipal User user) {
+        ApiResponse apiResponse = controlPanelService.controlPanel(user);
+        return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+    }
+
     @PostMapping("/users/results")
     public ResponseEntity<ApiResponse> results(
             @RequestParam(required = false) String fullName,
@@ -32,8 +38,9 @@ public class ControlPanelController {
     @PostMapping("/set/result")
     public ResponseEntity<ApiResponse> bekorQilish(@AuthenticationPrincipal User user,
                                                    @RequestParam Integer resultId,
-                                                   @RequestParam UserResults userResults) {
-        ApiResponse apiResponse = controlPanelService.setResult(user, resultId,userResults);
+                                                   @RequestParam UserResults userResults,
+                                                   @RequestParam double amaliyScore) {
+        ApiResponse apiResponse = controlPanelService.setResult(user, resultId,userResults,amaliyScore);
         return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
     }
     @GetMapping("/view/result")

@@ -18,6 +18,8 @@ public class UserDTO {
     @Schema(hidden = true)
     private Integer id;
 
+    @Schema(hidden = true)
+    private Integer photoId;
     @NotNull
     private String firstName;
 
@@ -38,6 +40,7 @@ public class UserDTO {
     private String street;
 
 
+    @Schema(hidden = true)
     private LocalDate createdDate;
 
 

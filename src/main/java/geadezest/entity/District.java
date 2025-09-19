@@ -15,6 +15,8 @@ public class District {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Street> street;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Region region;
+    private List<String> street;
 }
